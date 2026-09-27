@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+  functions = "functions"
+
+# Route API requests directly to Netlify Serverless Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Catch-all for HTML routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

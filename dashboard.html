@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - GlowLogic Solution</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Dynamic Glowing Background Orbs -->
+  <div class="bg-glow-orb orb-1"></div>
+  <div class="bg-glow-orb orb-2"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <main class="app-container dashboard-card">
+    
+    <div class="user-avatar" id="userInitial">?</div>
+
+    <div class="auth-header">
+      <div class="brand-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Authenticated Session</span>
+      </div>
+      <h1 id="welcomeTitle">Welcome User!</h1>
+      <p id="welcomeSub">You have successfully connected to the database & authenticated.</p>
+    </div>
+
+    <div class="profile-info-grid">
+      <div class="info-box">
+        <span>Full Name</span>
+        <p id="profileName">Loading...</p>
+      </div>
+      <div class="info-box">
+        <span>Username</span>
+        <p id="profileUsername">Loading...</p>
+      </div>
+      <div class="info-box">
+        <span>Email Address</span>
+        <p id="profileEmail">Loading...</p>
+      </div>
+      <div class="info-box">
+        <span>User ID</span>
+        <p id="profileId">Loading...</p>
+      </div>
+    </div>
+
+    <button type="button" class="logout-btn" onclick="handleLogout()">Sign Out</button>
+
+  </main>
+
+  <script>
+    const API_BASE = '/api';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('nexus_auth_token');
+      if (!token) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const user = data.user;
+          document.getElementById('welcomeTitle').textContent = `Welcome, ${user.name}!`;
+          document.getElementById('profileName').textContent = user.name;
+          document.getElementById('profileUsername').textContent = `@${user.username}`;
+          document.getElementById('profileEmail').textContent = user.email;
+          document.getElementById('profileId').textContent = user.id;
+          document.getElementById('userInitial').textContent = user.name.charAt(0).toUpperCase();
+        } else {
+          localStorage.removeItem('nexus_auth_token');
+          window.location.href = 'index.html';
+        }
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+        localStorage.removeItem('nexus_auth_token');
+        window.location.href = 'index.html';
+      }
+    });
+
+    function handleLogout() {
+      localStorage.removeItem('nexus_auth_token');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
